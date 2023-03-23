@@ -1,12 +1,26 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Button, Grid, Input } from "@mui/material";
 
 function ImageClassifier() {
   const [file, setFile] = useState(null);
+  const [previewSource, setPreviewSource] = useState('');
   const [result, setResult] = useState("");
 
   const handleFileUpload = (event) => {
-    setFile(event.target.files[0]);
+    const uploadedFile = event.target.files[0];
+    setFile(uploadedFile);
+    previewFile(uploadedFile);
+  };
+
+  const previewFile = (file) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewSource(reader.result);
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleFormSubmit = (event) => {
@@ -34,13 +48,40 @@ function ImageClassifier() {
   };
 
   return (
-    <div>
+    <>
       <form onSubmit={handleFormSubmit}>
-        <input type="file" onChange={handleFileUpload} />
-        <button type="submit">Classify Image</button>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6}>
+            <Input
+              type="file"
+              variant="contained"
+              color="primary"
+              placeholder="select"
+              onChange={handleFileUpload}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+          {previewSource && (
+            <img
+              src={previewSource}
+              alt="Preview"
+              style={{ maxHeight: '200px' }}
+            />
+          )}
+          {result == "stale_apple" ? <p>腐ったリンゴ</p>: <p>新鮮なリンゴ</p>}
+        </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+            >
+              Upload
+            </Button>
+          </Grid>
+        </Grid>
       </form>
-      {result && <p>{result}</p>}
-    </div>
+    </>
   );
 }
 
