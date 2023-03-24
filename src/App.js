@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Button, Grid, Input } from "@mui/material";
+import { Box, Button, Container, Grid, Input } from "@mui/material";
 
 function ImageClassifier() {
   const [file, setFile] = useState(null);
   const [previewSource, setPreviewSource] = useState('');
   const [result, setResult] = useState("");
+  const [x, setX] = useState([]);
+  const [y, setY] = useState([]);
 
   const handleFileUpload = (event) => {
     const uploadedFile = event.target.files[0];
@@ -41,6 +43,12 @@ function ImageClassifier() {
     })
     .then((response) => {
       setResult(response.data.result);
+      console.log(response.data.result)
+      if (response.data.result === "flesh_apple") {
+        setX((prevX) => [...prevX, previewSource]);
+      } else {
+        setY((prevY) => [...prevY, previewSource]);
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -48,40 +56,54 @@ function ImageClassifier() {
   };
 
   return (
-    <>
-      <form onSubmit={handleFormSubmit}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6}>
-            <Input
-              type="file"
-              variant="contained"
-              color="primary"
-              placeholder="select"
-              onChange={handleFileUpload}
-            />
+    <Box>
+      <Container>
+        <form onSubmit={handleFormSubmit}>
+          <Grid container spacing={3} alignItems="center" textAlign="center">
+            <Grid item xs={12} sm={6}>
+              <Input
+                type="file"
+                variant="contained"
+                color="primary"
+                placeholder="select"
+                onChange={handleFileUpload}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+            {previewSource && (
+              <img
+                src={previewSource}
+                alt="Preview"
+                style={{ maxHeight: '200px' }}
+              />
+            )}
+            {result === "fresh_apple" ? <p>新鮮なリンゴ</p>: <p>腐ったリンゴ</p>}
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+              >
+                Upload
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-          {previewSource && (
-            <img
-              src={previewSource}
-              alt="Preview"
-              style={{ maxHeight: '200px' }}
-            />
-          )}
-          {result == "stale_apple" ? <p>腐ったリンゴ</p>: <p>新鮮なリンゴ</p>}
-        </Grid>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              type="submit"
-            >
-              Upload
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-    </>
+        </form>
+      </Container>
+
+      <Container>
+      {x.map((img) => (
+        <img src={img} alt="Preview" style={{weight: 200, height: 200}}/>
+      ))}
+      </Container>
+
+      <Container>
+      {y.map((img) => (
+        <img src={img} alt="Preview" style={{weight: 200, height: 200}}/>
+      ))}
+      </Container>
+    </Box>
   );
 }
 
